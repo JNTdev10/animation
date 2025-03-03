@@ -1,109 +1,150 @@
-class Ball {
-    constructor(x, y, radius, color, dx, dy) {
-        this.x = x;
-        this.y = y;
-        this.radius = radius;
-        this.color = color;
-        this.dx = dx;
-        this.dy = dy;
+class Calculator {
+    constructor() {
+        this.previousOperandElement = document.querySelector('.previous-operand');
+        this.currentOperandElement = document.querySelector('.current-operand');
+        this.clear();
+        this.setupEventListeners();
     }
 
-    draw(ctx) {
-        ctx.beginPath();
-        ctx.arc(this.x, this.y, this.radius, 0, Math.PI * 2);
-        ctx.fillStyle = this.color;
-        ctx.fill();
-        ctx.closePath();
+    clear() {
+        this.currentOperand = '0';
+        this.previousOperand = '';
+        this.operation = undefined;
+        this.updateDisplay();
     }
 
-    update(canvas, balls) {
-        // Bounce off walls
-        if (this.x + this.radius > canvas.width || this.x - this.radius < 0) {
-            this.dx = -this.dx;
+    delete() {
+        this.currentOperand = this.currentOperand.toString().slice(0, -1);
+        if (this.currentOperand === '') this.currentOperand = '0';
+    }
+
+    appendNumber(number) {
+        if (number === '.' && this.currentOperand.includes('.')) return;
+        if (this.currentOperand === '0' && number !== '.') {
+            this.currentOperand = number;
+        } else {
+            this.currentOperand = this.currentOperand.toString() + number;
         }
-        if (this.y + this.radius > canvas.height || this.y - this.radius < 0) {
-            this.dy = -this.dy;
+    }
+
+    chooseOperation(operation) {
+        if (this.currentOperand === '') return;
+        if (this.previousOperand !== '') {
+            this.calculate();
+        }
+        this.operation = operation;
+        this.previousOperand = this.currentOperand;
+        this.currentOperand = '0';
+    }
+
+    calculate() {
+        let computation;
+        const prev = parseFloat(this.previousOperand);
+        const current = parseFloat(this.currentOperand);
+        if (isNaN(prev) || isNaN(current)) return;
+
+        switch (this.operation) {
+            case '+':
+                computation = prev + current;
+                break;
+            case '-':
+                computation = prev - current;
+                break;
+            case '×':
+                computation = prev * current;
+                break;
+            case '÷':
+                if (current === 0) {
+                    alert('Cannot divide by zero!');
+                    return;
+                }
+                computation = prev / current;
+                break;
+            case '%':
+                computation = (prev * current) / 100;
+                break;
+            default:
+                return;
         }
 
-        // Check collision with other balls
-        balls.forEach(ball => {
-            if (ball === this) return; // Skip self
+        this.currentOperand = computation;
+        this.operation = undefined;
+        this.previousOperand = '';
+    }
 
-            // Calculate distance between ball centers
-            const dx = ball.x - this.x;
-            const dy = ball.y - this.y;
-            const distance = Math.sqrt(dx * dx + dy * dy);
+    getDisplayNumber(number) {
+        const stringNumber = number.toString();
+        const integerDigits = parseFloat(stringNumber.split('.')[0]);
+        const decimalDigits = stringNumber.split('.')[1];
+        let integerDisplay;
+        
+        if (isNaN(integerDigits)) {
+            integerDisplay = '0';
+        } else {
+            integerDisplay = integerDigits.toLocaleString('en', {
+                maximumFractionDigits: 0
+            });
+        }
 
-            // Check if balls are colliding
-            if (distance < this.radius + ball.radius) {
-                // Collision detected - calculate new velocities
-                const angle = Math.atan2(dy, dx);
-                const sin = Math.sin(angle);
-                const cos = Math.cos(angle);
+        if (decimalDigits != null) {
+            return `${integerDisplay}.${decimalDigits}`;
+        } else {
+            return integerDisplay;
+        }
+    }
 
-                // Rotate velocities
-                const vx1 = this.dx * cos + this.dy * sin;
-                const vy1 = this.dy * cos - this.dx * sin;
-                const vx2 = ball.dx * cos + ball.dy * sin;
-                const vy2 = ball.dy * cos - ball.dx * sin;
+    updateDisplay() {
+        this.currentOperandElement.textContent = this.getDisplayNumber(this.currentOperand);
+        if (this.operation != null) {
+            this.previousOperandElement.textContent = 
+                `${this.getDisplayNumber(this.previousOperand)} ${this.operation}`;
+        } else {
+            this.previousOperandElement.textContent = '';
+        }
+    }
 
-                // Swap the velocities
-                this.dx = vx2 * cos - vy1 * sin;
-                this.dy = vy1 * cos + vx2 * sin;
-                ball.dx = vx1 * cos - vy2 * sin;
-                ball.dy = vy2 * cos + vx1 * sin;
-
-                // Move balls apart to prevent sticking
-                const overlap = (this.radius + ball.radius - distance) / 2;
-                const moveX = overlap * cos;
-                const moveY = overlap * sin;
-                
-                this.x -= moveX;
-                this.y -= moveY;
-                ball.x += moveX;
-                ball.y += moveY;
-            }
+    setupEventListeners() {
+        document.querySelectorAll('.number').forEach(button => {
+            button.addEventListener('click', () => {
+                this.appendNumber(button.innerText);
+                this.updateDisplay();
+            });
         });
 
-        // Update position
-        this.x += this.dx;
-        this.y += this.dy;
+        document.querySelectorAll('.operator').forEach(button => {
+            button.addEventListener('click', () => {
+                const action = button.dataset.action;
+                switch (action) {
+                    case 'add':
+                        this.chooseOperation('+');
+                        break;
+                    case 'subtract':
+                        this.chooseOperation('-');
+                        break;
+                    case 'multiply':
+                        this.chooseOperation('×');
+                        break;
+                    case 'divide':
+                        this.chooseOperation('÷');
+                        break;
+                    case 'percent':
+                        this.chooseOperation('%');
+                        break;
+                    case 'clear':
+                        this.clear();
+                        break;
+                    case 'delete':
+                        this.delete();
+                        break;
+                    case 'calculate':
+                        this.calculate();
+                        break;
+                }
+                this.updateDisplay();
+            });
+        });
     }
 }
 
-// Setup canvas
-const canvas = document.getElementById('canvas');
-const ctx = canvas.getContext('2d');
-
-// Create balls with different colors
-const balls = [
-    new Ball(100, 100, 20, 'red', 5, 4),
-    new Ball(200, 200, 20, 'blue', -4, 3),
-    new Ball(300, 300, 20, 'green', 3, -4),
-    new Ball(400, 400, 20, 'orange', -3, -3),
-    new Ball(500, 500, 20, 'white', 4, 4),
-    // Adding 4 more green balls with different positions and velocities
-    new Ball(150, 150, 20, 'green', 4, 2),
-    new Ball(250, 350, 20, 'green', -3, 5),
-    new Ball(450, 250, 20, 'green', 2, -3),
-    new Ball(350, 450, 20, 'green', -2, -4)
-];
-
-// Animation loop
-function animate() {
-    // Clear canvas
-    ctx.fillStyle = '#000000';
-    ctx.fillRect(0, 0, canvas.width, canvas.height);
-
-    // Update and draw balls
-    balls.forEach(ball => {
-        ball.update(canvas, balls);
-        ball.draw(ctx);
-    });
-
-    // Request next frame
-    requestAnimationFrame(animate);
-}
-
-// Start animation
-animate(); 
+// Initialize calculator
+const calculator = new Calculator(); 

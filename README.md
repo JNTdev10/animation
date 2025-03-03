@@ -1,37 +1,41 @@
-echo "# Bouncing Balls Animation
+# Modern Calculator
 
-A dynamic animation project featuring multiple bouncing balls with realistic collision physics.
+A sleek and modern calculator web application with a beautiful user interface and smooth animations. The calculator supports basic arithmetic operations, percentage calculations, and features a responsive design with a glass-morphism effect.
 
 ## Features
 
-- Multiple colored balls with different trajectories
-- Realistic ball-to-ball collision physics
-- Wall collision detection and response
-- Smooth animation using HTML5 Canvas
+- Clean and modern user interface with glass-morphism design
+- Basic arithmetic operations (addition, subtraction, multiplication, division)
+- Percentage calculations
+- Decimal number support
+- Clear and delete functionality
+- Responsive layout
+- Smooth animations and hover effects
 
-## How to Run
+## Usage
 
-1. Clone the repository:
-   \`\`\`bash
-   git clone https://github.com/JNTdev10/animation.git
-   \`\`\`
+Simply open the `index.html` file in a modern web browser to use the calculator. The interface is intuitive and supports the following operations:
 
-2. Open \`index.html\` in your web browser
+- Numbers (0-9) and decimal point
+- Basic operators (+, -, ×, ÷)
+- Percentage calculations (%)
+- AC (All Clear) to reset the calculator
+- DEL to delete the last entered digit
+- = to calculate the result
 
 ## Technologies Used
 
-- HTML5 Canvas
-- JavaScript
-- CSS3
+- HTML5
+- CSS3 (with modern features like grid, flexbox, and glass-morphism effects)
+- JavaScript (ES6+)
 
-## Preview
+## Installation
 
-The animation shows multiple colored balls bouncing around the canvas, interacting with each other and the walls in a physically accurate manner.
+1. Clone the repository:
+```bash
+git clone https://github.com/JNTdev10/testnew.git
+```
 
-## Author
+2. Open `index.html` in your web browser
 
-JNTdev10
-
-## License
-
-This project is open source and available under the MIT License." > README.md
+No additional dependencies or setup required!
